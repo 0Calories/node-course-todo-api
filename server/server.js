@@ -14,6 +14,7 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
+// POST Request to create a new todo
 app.post('/todos', (req, res) => {
     var todo = new Todo({
         text: req.body.text
@@ -26,6 +27,7 @@ app.post('/todos', (req, res) => {
     });
 });
 
+// GET Request to get a list of all todos
 app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
         res.send({todos});
@@ -34,8 +36,7 @@ app.get('/todos', (req, res) => {
     });
 });
 
-// GET /todos/<id>
-
+// GET Request to receive a specific todo by ID
 app.get('/todos/:id', (req, res) => {
     var id = req.params.id;
 
@@ -52,6 +53,7 @@ app.get('/todos/:id', (req, res) => {
     }).catch((e) => res.status(400).send());
 });
 
+// DELETE Request to delete a todo
 app.delete('/todos/:id', (req, res) => {
     var id = req.params.id;
 
@@ -67,6 +69,7 @@ app.delete('/todos/:id', (req, res) => {
     }).catch((e) => res.status(400).send());
 });
 
+// PATCH Request to modify todo
 app.patch('/todos/:id', (req, res) => {
     var id = req.params.id;
     var body = _.pick(req.body, ['text', 'completed']);
@@ -93,6 +96,18 @@ app.patch('/todos/:id', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Started on port ${port}`);
+});
+
+// POST Request to create new User
+app.post('/users', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
+    
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }).catch((e) => res.status(400).send(e));
 });
 
 module.exports = {app};
